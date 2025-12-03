@@ -12,7 +12,19 @@ def health():
 
 @app.post("/chat", response_model=ChatResponse)
 def chat(req: ChatRequest):
+    # 🔥 DEBUG LOGS — SAFE (deploy won't break)
+    print("🔥 /chat endpoint HIT")
+    print(f"🔥 User Question: {req.question}")
+
+    print("🔥 Starting RAG PIPELINE... (retrieval + LLM)")
+
+    # Actual pipeline call
     answer, metadata_list = rag_pipeline.query(req.question, req.history)
+
+    print("🔥 Pipeline returned ANSWER successfully")
+    print(f"🔥 Answer snippet: {str(answer)[:120]}...")  # Just first 120 chars
+    
+    print("🔥 Building metadata objects...")
 
     sources = [
         SourceMeta(
@@ -23,6 +35,8 @@ def chat(req: ChatRequest):
         )
         for m in metadata_list
     ]
+
+    print("🔥 Returning ChatResponse to frontend\n")
 
     return ChatResponse(
         answer=answer,
